@@ -1,6 +1,11 @@
 package main;
 
+import java.util.Random;
+
+import entity.npcBull;
+import entity.npcCow;
 import object.objCookie;
+import object.objPoop;
 
 public class assetSetter {
 	gamePanel gp;
@@ -11,28 +16,54 @@ public class assetSetter {
 	
 	public void setObject()
 	{
-		gp.obj[0] = new objCookie(gp);
-		gp.obj[0].worldX = 23 * gp.tileSize;
-		gp.obj[0].worldY = 24 * gp.tileSize;
+		Random rand = new Random();
+		int newX;
+		int newY;
 		
-		gp.obj[1] = new objCookie(gp);
-		gp.obj[1].worldX = 22 * gp.tileSize;
-		gp.obj[1].worldY = 24 * gp.tileSize;
+	
+		for(int i =0; i<gp.obj.length; i++)
+		{
+			do
+			{
+				newX = rand.nextInt(100);
+				newY = rand.nextInt(100);
+
+			}while(gp.tileM.tile[gp.tileM.mapTileNum[newX][newY]].collision == true  
+					|| (newX == gp.player.worldX && newY == gp.player.worldY));
+			
+			gp.obj[i] = new objPoop(gp);
+			gp.obj[i].worldX = gp.tileSize*newX;
+			gp.obj[i].worldY = gp.tileSize*newY;
+		}
+	}
+	
+	public void setNPC()
+	{
+		Random rand = new Random();
+		int newX;
+		int newY;
 		
-		gp.obj[2] = new objCookie(gp);
-		gp.obj[2].worldX = 21 * gp.tileSize;
-		gp.obj[2].worldY = 24 * gp.tileSize;
-		
-		gp.obj[3] = new objCookie(gp);
-		gp.obj[3].worldX = 20 * gp.tileSize;
-		gp.obj[3].worldY = 24 * gp.tileSize;
-		
-		gp.obj[4] = new objCookie(gp);
-		gp.obj[4].worldX = 19 * gp.tileSize;
-		gp.obj[4].worldY = 24 * gp.tileSize;
-		
-		gp.obj[5] = new objCookie(gp);
-		gp.obj[5].worldX = 18 * gp.tileSize;
-		gp.obj[5].worldY = 24 * gp.tileSize;
+	
+		for(int i =0; i<gp.npc.length; i++)
+		{
+			do
+			{
+				newX = rand.nextInt(100);
+				newY = rand.nextInt(100);
+
+			}while(gp.tileM.tile[gp.tileM.mapTileNum[newX][newY]].collision == true  
+					|| (newX == gp.player.worldX && newY == gp.player.worldY));
+			
+			int npcChoice = rand.nextInt(2);
+			if(npcChoice == 0)
+			{
+				gp.npc[i] = new npcBull(gp);
+			}else
+			{
+				gp.npc[i] = new npcCow(gp);
+			}
+			gp.npc[i].worldX = gp.tileSize*newX;
+			gp.npc[i].worldY = gp.tileSize*newY;
+		}
 	}
 }

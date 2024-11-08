@@ -4,23 +4,17 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import entity.Entity;
 import main.gamePanel;
 
-public class objCookie extends superObject{
-	gamePanel gp;
+public class objCookie extends Entity{
 	public objCookie(gamePanel gp)
 	{
+		super(gp);
 		name = "cookie";
-		try
-		{
-			imageUp = ImageIO.read(getClass().getResourceAsStream("/objects/cookie1.png"));
-			imageDown = ImageIO.read(getClass().getResourceAsStream("/objects/cookie2.png"));
-			uTool.scaleImage(imageUp,gp.tileSize,gp.tileSize);
-			uTool.scaleImage(imageDown,gp.tileSize,gp.tileSize);
-		}catch(IOException e)
-		{
-			e.printStackTrace();
-		}
+		
+		idol1 = setup("/objects/cookie1");
+		idol2 = setup("/objects/cookie2");
 		
 		collision = true;
 	}

@@ -6,23 +6,21 @@ import java.awt.Rectangle;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 import main.*;
 
 public class Player extends Entity{
-	gamePanel gp;
 	
 	keyHandler keyH;
 	
 	public final int screenX, screenY;
-	public int hasCookie = 0;
-	public int allCookies = 0;
 	
 	public Player(gamePanel gp, keyHandler keyH)
 	{
-		this.gp = gp;
+		super(gp);
 		this.keyH = keyH;
 		screenX = gp.screenWidth/2 - (gp.tileSize/2);
 		screenY = gp.screenHeight/2 - (gp.tileSize/2);
@@ -42,58 +40,40 @@ public class Player extends Entity{
 	
 	public void setDefaultValues()
 	{
-		
-		worldX = gp.tileSize * 24;
-		worldY = gp.tileSize * 24;
+		Random rand = new Random();
+		int newX;
+		int newY;
+		do
+		{
+			newX = rand.nextInt(100);
+			newY = rand.nextInt(100);
+
+		}while(gp.tileM.tile[gp.tileM.mapTileNum[newX][newY]].collision == true);
+		worldX = gp.tileSize * newX;
+		worldY = gp.tileSize * newY;
 		speed = 4;
 		digSpeed = 3;
 		direction = "idol";
+		
+		// PLAYER STATUS
+		maxLife = 6;
+		life = maxLife;
 	}
 	
 	public void getPlayerImage()
-	{
-//		try {
-//			up1 = ImageIO.read(getClass().getResourceAsStream("/player/monsterUp1.png"));
-//			up2 = ImageIO.read(getClass().getResourceAsStream("/player/monsterUp2.png"));
-//			down1 = ImageIO.read(getClass().getResourceAsStream("/player/monsterDown1.png"));
-//			down2 = ImageIO.read(getClass().getResourceAsStream("/player/monsterDown2.png"));
-//			left1 = ImageIO.read(getClass().getResourceAsStream("/player/monsterLeft1.png"));
-//			left2 = ImageIO.read(getClass().getResourceAsStream("/player/monsterLeft2.png"));
-//			right1 = ImageIO.read(getClass().getResourceAsStream("/player/monsterRight1.png"));
-//			right2 = ImageIO.read(getClass().getResourceAsStream("/player/monsterRight2.png"));
-//			idol1 = ImageIO.read(getClass().getResourceAsStream("/player/idol1.png"));
-//			idol2 = ImageIO.read(getClass().getResourceAsStream("/player/idol2.png"));
-//		}catch(IOException e)
-//		{
-//			e.printStackTrace();
-//		}
-		
-		up1 = setup("monsterUp1");
-		up2 = setup("monsterUp2");
-		down1 = setup("monsterDown1");
-		down2 = setup("monsterDown2");
-		left1 = setup("monsterLeft1");
-		left2 = setup("monsterLeft2");
-		right1 = setup("monsterRight1");
-		right2 = setup("monsterRight2");
-		idol1 = setup("idol1");
-		idol2 = setup("idol2");
+	{	
+		up1 = setup("/player/up1");
+		up2 = setup("/player/up2");
+		down1 = setup("/player/down1");
+		down2 = setup("/player/down2");
+		left1 = setup("/player/left1");
+		left2 = setup("/player/left2");
+		right1 = setup("/player/right1");
+		right2 = setup("/player/right2");
+		idol1 = setup("/player/idol1");
+		idol2 = setup("/player/idol2");
 	}
 	
-	public BufferedImage setup(String imageName)
-	{
-		utilityTool uTool = new utilityTool();
-		BufferedImage image = null;
-		try
-		{
-			image = ImageIO.read(getClass().getResourceAsStream("/player/" + imageName+".png"));
-			image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
-		}catch(IOException e)
-		{
-			e.printStackTrace();
-		}
-		return image;
-	}
 	
 	public void update()
 	{
@@ -118,6 +98,18 @@ public class Player extends Entity{
 			
 			int objIndex = gp.cChecker.checkObject(this, true);
 			pickUpObject(objIndex);
+			
+			//CHECK NPC COLLISION
+			int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
+			interactNPC(npcIndex);
+			
+			// CHECK EVENT
+			gp.eHandler.checkEvent();
+			
+			if(life == 0)
+			{
+				System.exit(0);
+			}
 			
 			if(collisionOn == false)
 			{
@@ -183,24 +175,20 @@ public class Player extends Entity{
 	{
 		if(i != 999)
 		{
-			String objectName = gp.obj[i].name;
-			switch(objectName)
-			{
-			case "cookie":
-				gp.obj[i] = null;
-				speed += 4;
-				digSpeed += 3;
-				//hasCookie++;
-				allCookies++;
-				gp.ui.showMessage("COOKIE");
-				break;
-			}
 		}
 		
-		if(allCookies == 6)
+	}
+	
+	public void interactNPC(int i)
+	{
+		if(i != 999)
 		{
-			System.out.println("ALL TAKEN");
-			gp.ui.gameFinished = true;
+//			if(gp.keyH.enterPressed == true)
+//			{
+				gp.gameState = gp.dialougeState;
+				gp.npc[i].speak();
+//			}
+//			gp.keyH.enterPressed = false;
 		}
 	}
 	
@@ -256,7 +244,7 @@ public class Player extends Entity{
 			case "idol":
 				if(spriteNum == 1)
 				{
-					image = idol1;
+					image = idol2;
 				}
 				if(spriteNum == 2)
 				{
